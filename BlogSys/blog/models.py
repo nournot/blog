@@ -23,6 +23,24 @@ class Category(models.Model):
         return self.name
 
 
+    @classmethod
+    def get_navs(cls):
+        categroys = cls.objects.filter(status=cls.STATUS_NORMAL)
+        nav_categories = []
+        normal_categories = []
+        for categroy in categroys:
+            if categroy.is_nav:
+                nav_categories.append(categroy)
+            else:
+                normal_categories.append(categroy)
+
+        return {
+            'navs': nav_categories,
+            'categories': normal_categories,
+        }
+
+
+
     class Meta:
         verbose_name = verbose_name_plural = '分类'
 
@@ -75,6 +93,39 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    @staticmethod
+    def get_by_tag(tag_id):
+        try:
+            tag = Tag.objects.get(tag_id)
+        except Tag.DoesNotExist:
+            tag = None
+            post_list = []
+        else:
+            post_list = tag.post_set.filter(status=Post.STATUS_NORMAL)\
+                .select_related('owner', 'category')
+
+        return post_list, tag
+
+
+    @staticmethod
+    def get_by_category(categroy_id):
+        try:
+            categroy = Category.objects.get(id=categroy_id)
+        except Category.DoesNotExist:
+            categroy = None
+            post_list = []
+        else:
+            post_list = categroy.post_set.filter(status=Post.STATUS_NORMAL)\
+                .select_related('owner', 'category')
+
+        return post_list, categroy
+
+
+    @classmethod
+    def latest_posts(cls):
+        queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
+        return queryset
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'
