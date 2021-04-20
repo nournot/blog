@@ -1,18 +1,38 @@
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <title>list</title>
-</head>
-<body>
+{% extends "./base.html" %}
+
+{% block title %}
+    {% if tag %}
+    tag: {{ tag.name }}
+    {% elif category %}
+    category: {{ category.name }}
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+<ul>
     {% for post in post_list %}
-    <h2>{{ post.title }}</h2>
-    {{ post.content }}
+    <li>
+    <a href="{% url 'blog:detail' post.id %}"><h2>{{ post.title }}</h2></a>
     <div>
     <span>作者: {{ post.owner.username }}</span>
-    <span>分类：{{ post.category.name }}</span>
-        </div>
+    <span>分类：<a href="{% url 'blog:post_list_for_category' post.category.id %}"> {{ post.category.name }}</a></span>
+    </div>
+        <p>{{ post.description }}</p>
         <br/>
+    </li>
     {% endfor %}
-</body>
-</html>
+
+    {% if page_obj %}
+
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous Page</a>
+        {% endif %}
+        Page {{ page_obj.number }} of {{ paginator.num_pages }}.
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next Page</a>
+        {% endif %}
+
+    {% endif %}
+</ul>
+{% endblock %}

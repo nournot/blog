@@ -19,27 +19,24 @@ class Category(models.Model):
     is_nav = models.BooleanField(default=False, verbose_name='是否为导航')
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
-
-
     @classmethod
     def get_navs(cls):
-        categroys = cls.objects.filter(status=cls.STATUS_NORMAL)
+        categories = cls.objects.filter(status=cls.STATUS_NORMAL)
         nav_categories = []
         normal_categories = []
-        for categroy in categroys:
-            if categroy.is_nav:
-                nav_categories.append(categroy)
+        for category in categories:
+            if category.is_nav:
+                nav_categories.append(category)
             else:
-                normal_categories.append(categroy)
+                normal_categories.append(category)
 
         return {
             'navs': nav_categories,
             'categories': normal_categories,
         }
 
-
+    def __str__(self):
+        return self.name
 
     class Meta:
         verbose_name = verbose_name_plural = '分类'
@@ -91,22 +88,12 @@ class Post(models.Model):
     tags = models.ManyToManyField(Tag, verbose_name='标签')
     owner = models.ForeignKey(User, verbose_name='作者', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.title
+    pv = models.PositiveIntegerField(default=1)
+    uv = models.PositiveIntegerField(default=1)
 
-    @staticmethod
-    def get_by_tag(tag_id):
-        try:
-            tag = Tag.objects.get(tag_id)
-        except Tag.DoesNotExist:
-            tag = None
-            post_list = []
-        else:
-            post_list = tag.post_set.filter(status=Post.STATUS_NORMAL)\
-                .select_related('owner', 'category')
-
-        return post_list, tag
-
+    @classmethod
+    def hot_posts(cls):
+        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')
 
     @staticmethod
     def get_by_category(categroy_id):
@@ -116,16 +103,31 @@ class Post(models.Model):
             categroy = None
             post_list = []
         else:
-            post_list = categroy.post_set.filter(status=Post.STATUS_NORMAL)\
+            post_list = categroy.post_set.filter(status=Post.STATUS_NORMAL) \
                 .select_related('owner', 'category')
 
         return post_list, categroy
 
+    @staticmethod
+    def get_by_tag(tag_id):
+        try:
+            tag = Tag.objects.get(tag_id)
+        except Tag.DoesNotExist:
+            tag = None
+            post_list = []
+        else:
+            post_list = tag.post_set.filter(status=Post.STATUS_NORMAL) \
+                .select_related('owner', 'category')
+
+        return post_list, tag
 
     @classmethod
     def latest_posts(cls):
         queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
         return queryset
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         verbose_name = verbose_name_plural = '文章'

@@ -10,6 +10,7 @@ from .models import Category, Tag, Post
 
 # 在分类的编辑页，下方新增一个编辑文章的组件
 from BlogSys.custom_site import custom_site
+from BlogSys.BaseOnwerAdmin import BaseOwnerAdmin
 
 
 class PostInline(admin.TabularInline):  # StackedInline样式不同
@@ -19,7 +20,7 @@ class PostInline(admin.TabularInline):  # StackedInline样式不同
 
 
 @admin.register(Category, site=custom_site)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(BaseOwnerAdmin):
     inlines = [PostInline, ]
 
     list_display = ['name', 'is_nav', 'status', 'created_time', 'owner',
@@ -30,23 +31,24 @@ class CategoryAdmin(admin.ModelAdmin):
     def post_count(self, obj):
         return obj.post_set.count()
 
-    # 重写save_model，由django调用
-    # 其中参数obj为要保存的对象。form为提交过来的表单。change用于标记本次保存是新增还是更新
-    # 这里的obj是blog.models.Category对象
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(CategoryAdmin, self).save_model(request, obj, form, change)
+    # # 重写save_model，由django调用
+    # # 其中参数obj为要保存的对象。form为提交过来的表单。change用于标记本次保存是新增还是更新
+    # # 这里的obj是blog.models.Category对象
+    # def save_model(self, request, obj, form, change):
+    #     obj.owner = request.user
+    #     return super(CategoryAdmin, self).save_model(request, obj, form, change)
 
 
 @admin.register(Tag, site=custom_site)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(BaseOwnerAdmin):
     list_display = ['name', 'status', 'owner', 'created_time']
     fields = ['name', 'status', ]
 
-    # 保存时，自动获取登陆用户，设置为创建者
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(TagAdmin, self).save_model(request, obj, form, change)
+    # # 保存时，自动获取登陆用户，设置为创建者
+    # def save_model(self, request, obj, form, change):
+    #     obj.owner = request.user
+    #     return super(TagAdmin, self).save_model(request, obj, form, change)
+
 
 
 class CategoryOwnerFilter(admin.SimpleListFilter):
@@ -67,7 +69,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
 
 
 @admin.register(Post, site=custom_site)
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(BaseOwnerAdmin):
     # 自定义amdin的form
     form = PostAdminForm
 
@@ -131,15 +133,16 @@ class PostAdmin(admin.ModelAdmin):
 
     operater.short_description = '操作'
 
-    # 保存时，自动获取登陆用户，设置为创建者
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(PostAdmin, self).save_model(request, obj, form, change)
-
-    # 重新，使只展示自己的文章列表
-    def get_queryset(self, request):
-        qs = super(PostAdmin, self).get_queryset(request)
-        return qs.filter(owner=request.user)
+    # had abstraced to class BaseOwnerAdmin
+    # # 保存时，自动获取登陆用户，设置为创建者
+    # def save_model(self, request, obj, form, change):
+    #     obj.owner = request.user
+    #     return super(PostAdmin, self).save_model(request, obj, form, change)
+    #
+    # # 重新，使只展示自己的文章列表
+    # def get_queryset(self, request):
+    #     qs = super(PostAdmin, self).get_queryset(request)
+    #     return qs.filter(owner=request.user)
 
 
 @admin.register(LogEntry, site=custom_site)
