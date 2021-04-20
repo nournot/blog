@@ -1,10 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}首页{% endblock %}-Sven's Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">
+<!--    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.css">-->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <style>
         .post {
             margin-bottom: 5px;
@@ -24,9 +26,9 @@
                     </li>
                     {% endfor %}
                 </ul>
-                <form class="form-inline my-2 my-lg-0" method="GET">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search"
-                        aria-label="Search">
+                <form class="form-inline" action="/search/" method="GET">
+                    <input class="form-control" type="search" name="keyword" placeholder="搜索"
+                        aria-label="Search" value="{{ keyword }}">
                     <button class="btn btn-outline-success" type="submit">搜索</button>
                 </form>
             </div>

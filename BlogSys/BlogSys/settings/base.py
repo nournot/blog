@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 'django-insecure-st(shg#6#%l%z$bkg)95b*+)591asfbdu!7(bc3+y5-ttp9a$(
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -92,7 +90,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'BlogSys.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -102,7 +99,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -122,7 +118,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -138,11 +133,20 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+# 配置 部署后的静态资源路径，Django提供了collectionstatic命令来收集所有的静态资源到STATIC_ROOT
+# 这样就可以通过Nginx配置静态资源的路径了
+STATIC_ROOT = '/tmp/static'
+# 用来配置页面上静态资源的起始路径，本项目中放在themes/bootstrap中
+# 拆分之后的地址就是/static/css/bootstrap.css
 STATIC_URL = '/static/'
+# 用来指定静态资源所在的目录。我们访问上面的CSS地址，即/static/css/bootstraps.css时
+# Django就会去这些目录下查找。同时对于collectionstatic命令，也会去这些目录下查找。
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'themes', THEME, "static"),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
